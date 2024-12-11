@@ -26,13 +26,23 @@ function generateArray() {
   renderArray();
 }
 
-// Render array as bars
+// Render array as bars with numbers
 function renderArray() {
   arrayContainer.innerHTML = ''; // Clear previous array
   array.forEach((value, index) => {
     const bar = document.createElement('div');
     bar.classList.add('bar');
     bar.style.height = `${value}px`;
+
+    // Create a label with the value of the array element
+    const label = document.createElement('span');
+    label.classList.add('bar-label');
+    label.textContent = value;
+
+    // Append the label inside the bar
+    bar.appendChild(label);
+    
+    // Append the bar to the array container
     arrayContainer.appendChild(bar);
   });
 }
@@ -111,7 +121,165 @@ async function bubbleSort() {
   renderArray(); // Final sorted array
 }
 
-// Play button functionality
+// Insertion Sort
+async function insertionSort() {
+  let bars = document.querySelectorAll('.bar');
+  for (let i = 1; i < array.length; i++) {
+    let key = array[i];
+    let j = i - 1;
+
+    bars[i].classList.add('highlight');
+
+    while (j >= 0 && array[j] > key) {
+      bars[j].classList.add('highlight');
+      array[j + 1] = array[j];
+      j--;
+      await new Promise(resolve => setTimeout(resolve, speed));
+      renderArray();
+      bars = document.querySelectorAll('.bar');
+    }
+
+    array[j + 1] = key;
+    renderArray();
+    bars = document.querySelectorAll('.bar');
+    bars[i].classList.remove('highlight');
+  }
+
+  bars.forEach(bar => bar.classList.add('sorted'));
+}
+
+// Selection Sort
+async function selectionSort() {
+  let bars = document.querySelectorAll('.bar');
+  for (let i = 0; i < array.length; i++) {
+    let minIndex = i;
+    bars[minIndex].classList.add('highlight');
+
+    for (let j = i + 1; j < array.length; j++) {
+      bars[j].classList.add('highlight');
+      if (array[j] < array[minIndex]) {
+        minIndex = j;
+      }
+      await new Promise(resolve => setTimeout(resolve, speed));
+      bars[j].classList.remove('highlight');
+    }
+
+    [array[i], array[minIndex]] = [array[minIndex], array[i]];
+    renderArray();
+    bars = document.querySelectorAll('.bar');
+    bars[minIndex].classList.remove('highlight');
+  }
+
+  bars.forEach(bar => bar.classList.add('sorted'));
+}
+
+// Merge Sort
+async function mergeSort(arr, left, right) {
+  if (left < right) {
+    const mid = Math.floor((left + right) / 2);
+
+    // Recursively divide the array
+    await mergeSort(arr, left, mid);
+    await mergeSort(arr, mid + 1, right);
+
+    // Merge the two sorted halves
+    await merge(arr, left, mid, right);
+  }
+}
+
+// Merge helper function
+async function merge(arr, left, mid, right) {
+  const bars = document.querySelectorAll('.bar');
+  const n1 = mid - left + 1;
+  const n2 = right - mid;
+
+  const leftArr = new Array(n1);
+  const rightArr = new Array(n2);
+
+  // Fill the temporary arrays
+  for (let i = 0; i < n1; i++) leftArr[i] = arr[left + i];
+  for (let j = 0; j < n2; j++) rightArr[j] = arr[mid + 1 + j];
+
+  let i = 0;
+  let j = 0;
+  let k = left;
+
+  while (i < n1 && j < n2) {
+    // Highlight the bars being compared
+    bars[k].classList.add('highlight');
+
+    if (leftArr[i] <= rightArr[j]) {
+      arr[k] = leftArr[i];
+      i++;
+    } else {
+      arr[k] = rightArr[j];
+      j++;
+    }
+    await new Promise(resolve => setTimeout(resolve, speed)); // Pause for visualization
+    renderArray();
+
+    // Reset the highlight after comparison
+    bars[k].classList.remove('highlight');
+
+    k++;
+  }
+
+  // Copy remaining elements of leftArr, if any
+  while (i < n1) {
+    arr[k] = leftArr[i];
+    i++;
+    k++;
+    renderArray();
+    await new Promise(resolve => setTimeout(resolve, speed));
+  }
+
+  // Copy remaining elements of rightArr, if any
+  while (j < n2) {
+    arr[k] = rightArr[j];
+    j++;
+    k++;
+    renderArray();
+    await new Promise(resolve => setTimeout(resolve, speed));
+  }
+}
+
+// Quick Sort
+async function quickSort(arr, low, high) {
+  if (low < high) {
+    const pivotIndex = await partition(arr, low, high);
+    await quickSort(arr, low, pivotIndex - 1);
+    await quickSort(arr, pivotIndex + 1, high);
+  }
+}
+
+// Partition helper function
+async function partition(arr, low, high) {
+  const bars = document.querySelectorAll('.bar');
+  const pivot = arr[high];
+  let i = low - 1;
+
+  for (let j = low; j < high; j++) {
+    // Highlight the bars being compared
+    bars[j].classList.add('highlight');
+    bars[high].classList.add('highlight');
+
+    if (arr[j] < pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      renderArray();
+      await new Promise(resolve => setTimeout(resolve, speed));
+    }
+
+    bars[j].classList.remove('highlight');
+    bars[high].classList.remove('highlight');
+  }
+
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  renderArray();
+  return i + 1;
+}
+
+// Play button functionality with Merge Sort and Quick Sort
 playButton.addEventListener('click', async () => {
   if (sortingInProgress) return; // Prevent starting a sort if one is already in progress
   sortingInProgress = true;
@@ -125,15 +293,10 @@ playButton.addEventListener('click', async () => {
   } else if (selectedAlgorithm === 'selection') {
     await selectionSort();
   } else if (selectedAlgorithm === 'merge') {
-    await mergeSort(); // Assuming you add a merge sort function
+    await mergeSort(array, 0, array.length - 1);
   } else if (selectedAlgorithm === 'quick') {
-    await quickSort();
+    await quickSort(array, 0, array.length - 1);
   }
-
-  // Mark the final sorted bars
-  let barsFinal = document.querySelectorAll('.bar');
-  barsFinal.forEach(bar => bar.classList.add('sorted'));
-  renderArray(); // Final sorted array
 
   sortingInProgress = false;
   playButton.disabled = false; // Re-enable play button after sorting
@@ -142,8 +305,10 @@ playButton.addEventListener('click', async () => {
 // Reset the array to a new random array
 resetButton.addEventListener('click', () => {
   generateArray();
-  playButton.disabled = false;
+  playButton.disabled = true; // Disable play button after reset
   sortingInProgress = false;
 });
 
 window.onload = generateArray;
+
+
