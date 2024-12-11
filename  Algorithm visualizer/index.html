@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorting Algorithm Visualizer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Sorting Algorithm Visualizer</h1>
+
+    <div id="array-container"></div>
+
+    <div class="controls">
+      <button id="start-bubble">Bubble Sort</button>
+      <button id="start-insertion">Insertion Sort</button>
+      <button id="start-selection">Selection Sort</button>
+      <button id="start-merge">Merge Sort</button>
+      <button id="start-quick">Quick Sort</button>
+      <button id="play" disabled>Play</button> <!-- Play Button -->
+      <button id="reset">Reset</button>
+
+      <div>
+        <label for="speed">Speed:</label>
+        <input type="range" id="speed" min="10" max="1000" value="200" />
+        <span id="speedValue">200ms</span>
+      </div>
+
+      <div>
+        <label for="arraySize">Array Size:</label>
+        <input type="range" id="arraySize" min="10" max="150" value="50" />
+        <span id="arraySizeValue">50</span>
+      </div>
+
+      <div>
+        <label for="customArray">Enter Custom Array:</label>
+        <input type="text" id="customArray" placeholder="e.g., 50, 30, 100, 60" />
+        <button id="setCustomArray">Set Custom Array</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
